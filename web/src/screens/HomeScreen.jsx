@@ -25,8 +25,9 @@ export default function HomeScreen({ onAsk, onNavigate, onOpenDataset, refreshKe
     <main className="home">
       <div className="home-inner">
         <header className="home-header">
-          <div className="eyebrow">
-            {stats.data ? stats.data.catalogue_datasets : '…'} EIA datasets · electricity · gas · petroleum · coal
+          <div className="mission">
+            <span className="dot" aria-hidden="true" />
+            Easily accessible energy data for all
           </div>
           <h1>
             Ask for energy data.
@@ -37,6 +38,9 @@ export default function HomeScreen({ onAsk, onNavigate, onOpenDataset, refreshKe
             Describe what you want to see. The agent finds the right EIA dataset, downloads it, saves it to your
             library and plots it.
           </p>
+          <div className="eyebrow">
+            {stats.data ? stats.data.catalogue_datasets : '…'} EIA datasets · electricity · gas · petroleum · coal
+          </div>
         </header>
 
         <form className="ask-box" onSubmit={handleSubmit}>
