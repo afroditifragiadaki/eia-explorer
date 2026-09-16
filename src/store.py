@@ -146,11 +146,14 @@ def search_routes(query: str, limit: int = 12) -> list[dict[str, Any]]:
     if df.empty:
         return []
     words = [w for w in query.lower().replace("-", " ").split() if len(w) > 1]
-    name = (df["name"].fillna("") + " " + df["path"].str.replace("/", " ")).str.lower()
-    desc = (df["description"].fillna("") + " " + df["data_cols"].fillna("")).str.lower()
-    score = sum(name.str.contains(w, regex=False) * 3 + desc.str.contains(w, regex=False) for w in words)
-    df = df.assign(score=score)
-    df = df[df["score"] > 0].sort_values("score", ascending=False).head(limit)
+    if words:
+        name = (df["name"].fillna("") + " " + df["path"].str.replace("/", " ")).str.lower()
+        desc = (df["description"].fillna("") + " " + df["data_cols"].fillna("")).str.lower()
+        score = sum(name.str.contains(w, regex=False) * 3 + desc.str.contains(w, regex=False) for w in words)
+        df = df.assign(score=score)
+        df = df[df["score"] > 0].sort_values("score", ascending=False)
+    # No search words: the whole catalogue, in path order (already sorted).
+    df = df.head(limit)
     return [
         {
             "route": r.path,

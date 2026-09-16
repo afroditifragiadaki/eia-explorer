@@ -36,6 +36,9 @@ Found while building and smoke-testing the first version (2026-09-16).
   share one axis.
 - [ ] **Reads can be up to 30 s behind** writes from other processes
   (`SYNC_EVERY_S` in `src/store.py`).
+- [ ] **Catalogue descriptions repeat themselves** for some routes: the
+  crawler joins the parent's description with the dataset's own, and they
+  are often identical (`scripts/build_catalog.py`). Skip duplicates.
 - [ ] **Deprecated EIA routes** (`co2-emissions/*`) are still in the
   catalogue. Mark or drop them.
 - [ ] **No automated tests.** Worth covering: `charts.parse_period`,
