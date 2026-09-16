@@ -17,12 +17,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import json  # noqa: E402
+import os  # noqa: E402
 from contextlib import asynccontextmanager  # noqa: E402
 
+import anthropic  # noqa: E402
 from fastapi import FastAPI, HTTPException, Query  # noqa: E402
 
 from src import store  # noqa: E402
 
+from .ask import router as ask_router  # noqa: E402
 from .schemas import CatalogueDetail, CatalogueItem, LibraryItem  # noqa: E402
 
 
@@ -31,6 +34,9 @@ async def lifespan(app: FastAPI):
     # Code before `yield` runs once when the server starts, after it once on
     # shutdown. Make sure the tables exist before the first request arrives.
     store.init()
+    # One Anthropic client for the whole server, reused by every request.
+    # None if there is no key: /ask then answers 503 instead of crashing.
+    app.state.anthropic = anthropic.Anthropic() if os.environ.get("ANTHROPIC_API_KEY") else None
     yield
 
 
@@ -40,6 +46,9 @@ app = FastAPI(
     description="Find, cache and chart U.S. Energy Information Administration data.",
     lifespan=lifespan,
 )
+
+# Endpoints defined in other files are attached here.
+app.include_router(ask_router)
 
 
 @app.get("/health")

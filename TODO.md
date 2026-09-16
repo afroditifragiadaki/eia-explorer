@@ -17,6 +17,13 @@ Found while building and smoke-testing the first version (2026-09-16).
   the previous crawl's rows. Collect the failures and retry them at the end,
   or report them clearly.
 
+- [ ] **Conversations live in the API server's memory** (`CONVERSATIONS` in
+  `api/ask.py`): lost on restart, not shared between server processes.
+  Store them in Turso.
+- [ ] **The agent can download a dataset it already has.** In one test it
+  charted the saved NY vs FL dataset, then fetched a near-identical one from
+  EIA anyway. Tighten the prompt or reuse cached data automatically.
+
 ## Not verified yet
 
 - [ ] The fix that keeps the answer and chart visible below the status box
