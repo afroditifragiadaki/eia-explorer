@@ -1,0 +1,60 @@
+# Theme. Every key below was verified against the installed Streamlit build
+# (1.64.0) by enumerating config.get_config_options() — invalid keys here fail
+# SILENTLY, so they are never guessed from documentation.
+#
+# No custom fontFaces on purpose: external font URLs are a runtime dependency
+# that breaks quietly on a deployed app. To add one later, drop a .woff2 into
+# static/, set server.enableStaticServing = true, and reference it here.
+
+[theme]
+base = "dark"
+
+primaryColor = "#38bdf8"
+backgroundColor = "#0b1220"
+secondaryBackgroundColor = "#131c2e"
+textColor = "#e6edf7"
+linkColor = "#5eead4"
+linkUnderline = false
+
+borderColor = "#22304a"
+showWidgetBorder = true
+showSidebarBorder = true
+baseRadius = "medium"
+buttonRadius = "full"
+baseFontSize = 15
+
+codeBackgroundColor = "#111a2b"
+codeTextColor = "#9fb4d4"
+
+dataframeBorderColor = "#22304a"
+dataframeHeaderBackgroundColor = "#17223a"
+
+# Plotly inherits these, so charts match the page without hard-coded colours.
+chartCategoricalColors = [
+  "#38bdf8", "#5eead4", "#a78bfa", "#fbbf24",
+  "#fb7185", "#4ade80", "#f472b6", "#93c5fd",
+]
+
+[theme.sidebar]
+backgroundColor = "#0d1526"
+secondaryBackgroundColor = "#16213a"
+borderColor = "#22304a"
+baseRadius = "medium"
+
+# Light mode still has to look deliberate for anyone who toggles it.
+[theme.light]
+backgroundColor = "#fbfcfe"
+secondaryBackgroundColor = "#f1f5f9"
+textColor = "#0f172a"
+primaryColor = "#0284c7"
+linkColor = "#0d9488"
+borderColor = "#dbe3ee"
+dataframeBorderColor = "#dbe3ee"
+dataframeHeaderBackgroundColor = "#eef2f7"
+
+[theme.light.sidebar]
+backgroundColor = "#f4f7fb"
+borderColor = "#dbe3ee"
+
+[server]
+enableStaticServing = false
