@@ -64,6 +64,37 @@ streamlit run app.py
 
 Without Turso credentials, everything runs on `data/eia.db`.
 
+## API (FastAPI)
+
+The backend for the React frontend (in progress). It wraps `src/` and adds no
+logic of its own.
+
+```bash
+fastapi dev api/main.py        # http://127.0.0.1:8000/docs
+pip install -r requirements-dev.txt && pytest   # tests: temp SQLite, no network
+```
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /health` | Liveness and storage backend |
+| `GET /stats` | Catalogue and library counts |
+| `GET /catalogue?q=&limit=` | Search the EIA catalogue |
+| `GET /catalogue/{route}` | One EIA dataset's metadata |
+| `GET /library?contains=` | Saved datasets |
+| `GET /datasets/{id}` | A saved dataset's data points |
+| `GET /datasets/{id}/chart` | Plotly figure JSON (`kind`, `metric`, `series`, `log_y`) |
+| `GET /datasets/{id}/csv` | CSV download (`layout=wide\|long`) |
+| `POST /ask` | Run the agent; streams Server-Sent Events |
+
+| File | Role |
+|---|---|
+| `api/main.py` | App, startup, CORS, catalogue and library endpoints |
+| `api/ask.py` | `POST /ask` and the event stream |
+| `api/datasets.py` | Dataset data, chart and CSV endpoints |
+| `api/schemas.py` | Response models (the API contract) |
+| `api/settings.py` | Settings from environment variables |
+| `tests/` | Endpoint tests with a temporary database and a fake agent |
+
 ## Caching
 
 A dataset's ID is a hash of its normalised query, so the same question asked in

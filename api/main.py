@@ -17,17 +17,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import json  # noqa: E402
-import os  # noqa: E402
 from contextlib import asynccontextmanager  # noqa: E402
 
 import anthropic  # noqa: E402
 from fastapi import FastAPI, HTTPException, Query  # noqa: E402
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 
 from src import store  # noqa: E402
 
 from .ask import router as ask_router  # noqa: E402
 from .datasets import router as datasets_router  # noqa: E402
 from .schemas import CatalogueDetail, CatalogueItem, LibraryItem  # noqa: E402
+from .settings import get_settings  # noqa: E402
 
 
 @asynccontextmanager
@@ -37,7 +38,8 @@ async def lifespan(app: FastAPI):
     store.init()
     # One Anthropic client for the whole server, reused by every request.
     # None if there is no key: /ask then answers 503 instead of crashing.
-    app.state.anthropic = anthropic.Anthropic() if os.environ.get("ANTHROPIC_API_KEY") else None
+    key = get_settings().anthropic_api_key
+    app.state.anthropic = anthropic.Anthropic(api_key=key) if key else None
     yield
 
 
@@ -46,6 +48,15 @@ app = FastAPI(
     version="0.1.0",
     description="Find, cache and chart U.S. Energy Information Administration data.",
     lifespan=lifespan,
+)
+
+# CORS: browsers only let a page read replies from another address (our API
+# on :8000, called from the React app on :5173) if the API says it's allowed.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=get_settings().cors_origins,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 # Endpoints defined in other files are attached here.
