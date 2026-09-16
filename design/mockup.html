@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eia-explorer — redesign mockup</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+  /* Static design mockup. Not wired to the backend; the numbers are real EIA
+     values from the datasets saved during development. */
+  :root { --paper:#0A0B0D; --rail:#0F1114; --card:#111317; --ink:#E8EAED; --ink-2:#A9AFB8; --muted:#7D8590;
+          --rule:#23272E; --rule-strong:#2E333B; --accent:#3DDC97; --accent-2:#58A6FF; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Geist', system-ui, sans-serif; background: var(--paper); color: var(--ink); }
+  a { color: var(--accent); } a:hover { color: #7FF0BF; }
+  section { display: none; }
+  section:target, body:not(:has(section:target)) #home { display: block; }
+  .screen { width: 1440px; height: 960px; margin: 0 auto; display: flex; background: var(--paper); }
+  .rail { width: 248px; flex-shrink: 0; padding: 28px 18px; display: flex; flex-direction: column; gap: 28px; background: var(--rail); border-right: 1px solid var(--rule); }
+  .wordmark { display: flex; align-items: baseline; gap: 1px; padding: 0 8px; text-decoration: none; color: var(--ink); font-family: 'Geist', sans-serif; font-weight: 600; letter-spacing: -0.03em; font-size: 30px; line-height: 1; }
+  .wordmark em { font-style: normal; font-family: 'Geist Mono', monospace; font-weight: 500; color: var(--accent); }
+  .new-q { display: flex; align-items: center; justify-content: center; gap: 8px; height: 44px; border-radius: 10px; background: var(--ink); color: var(--paper); text-decoration: none; font-size: 14px; font-weight: 500; }
+  .new-q:hover { color: #000; background: #FFFFFF; }
+  .nav-list { display: flex; flex-direction: column; gap: 2px; }
+  .nav-item { display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid transparent; color: var(--ink-2); text-decoration: none; font-size: 14px; }
+  .nav-item:hover { background: #1A1E24; color: var(--ink); }
+  .nav-item.active { background: #15181D; border-color: var(--rule); color: var(--ink); font-weight: 500; }
+  .nav-item .count { margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--muted); font-weight: 400; }
+  .recent { display: flex; flex-direction: column; gap: 4px; }
+  .recent .label { padding: 0 12px 6px; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .recent a { padding: 8px 12px; border-radius: 8px; color: var(--ink-2); text-decoration: none; font-size: 13px; line-height: 1.35; }
+  .recent a:hover, .recent a.current { background: #1A1E24; color: var(--ink); }
+  .status { margin-top: auto; padding: 14px 12px 0; border-top: 1px solid var(--rule); display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--muted); }
+  .status .dot { display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 4px; background: #3DDC97; }
+  a[style*="border-radius: 999px"]:hover, a[style*="border-radius: 16px"]:hover, a[style*="border-radius: 14px"]:hover { border-color: var(--accent) !important; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  #home main { background-color: #0A0B0D;
+    background-image: linear-gradient(#14171C 1px, transparent 1px), linear-gradient(90deg, #14171C 1px, transparent 1px);
+    background-size: 44px 44px; background-position: -1px -1px; }
+  .rail { background: #0C0E11; }
+  .wordmark { font-size: 24px; }
+  .nav-item.active { box-shadow: inset 2px 0 0 #3DDC97; }
+  h1, h2 { font-feature-settings: "ss01"; }
+  ::selection { background: #3DDC97; color: #04110B; }
+  ::placeholder { color: #5C636E; }
+</style>
+</head>
+<body>
+<section id="home" aria-label="home screen">
+<div class="screen">
+<nav aria-label="Primary" class="rail">
+  <a href="#home" class="wordmark"><span>eia</span><em>explorer</em></a>
+  <a href="#home" class="new-q"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New question</a>
+  <div class="nav-list"><a class="nav-item active" href="#home"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Ask</a><a class="nav-item" href="#library"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 17l8 4 8-4"/></svg>Library<span class="count">6</span></a><a class="nav-item" href="#catalogue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Catalogue<span class="count">232</span></a></div>
+  <div class="recent"><div class="label">Recent</div>
+    <a href="#answer">Residential prices, New York vs Florida</a>
+    <a href="#answer">Henry Hub spot prices</a>
+    <a href="#answer">CAISO hourly demand this summer</a></div>
+  <div class="status"><div><span class="dot"></span>Turso · synced</div><div>Data: U.S. Energy Information Administration</div></div>
+</nav>
+<main style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; padding: 120px 48px 48px; box-sizing: border-box;">
+    <div style="width: 760px; display: flex; flex-direction: column; gap: 36px;">
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #3DDC97;">232 EIA datasets · electricity · gas · petroleum · coal</div>
+        <h1 style="margin: 0; font-family: 'Geist', sans-serif; font-weight: 600; letter-spacing: -0.035em; font-size: 68px; line-height: 1.02; letter-spacing: -0.01em;">Ask for energy data.<br><span style="color: #3DDC97;">Get the chart.</span></h1>
+        <p style="margin: 0; max-width: 560px; font-size: 17px; line-height: 1.55; color: #A9AFB8;">Describe what you want to see. The agent finds the right EIA dataset, downloads it, saves it to your library and plots it.</p>
+      </div>
+
+      <form style="display: flex; flex-direction: column; gap: 14px; padding: 18px 18px 14px 22px; background: #15181D; border: 1px solid #2E333B; border-radius: 18px; box-shadow: 0 1px 0 #23272E, 0 12px 32px rgba(0, 0, 0, 0.45);">
+        <label for="ask" style="position: absolute; width: 1px; height: 1px; overflow: hidden;">Your question</label>
+        <textarea id="ask" rows="2" placeholder="e.g. How has coal production in Wyoming changed since 2010?" style="border: 0; outline: none; resize: none; font-family: 'Geist', sans-serif; font-size: 18px; line-height: 1.5; color: #E8EAED; background: transparent;"></textarea>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 13px; color: #7D8590;">Saved datasets are reused instantly</span>
+          <a href="#answer" aria-label="Ask" style="margin-left: auto; width: 44px; height: 44px; border-radius: 22px; background: #3DDC97; color: #04110B; display: flex; align-items: center; justify-content: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+          </a>
+        </div>
+      </form>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <a href="#answer" style="padding: 10px 16px; border-radius: 999px; border: 1px solid #2E333B; background: #111317; color: #E8EAED; text-decoration: none; font-size: 14px;">Residential electricity prices, New York vs Florida</a>
+        <a href="#answer" style="padding: 10px 16px; border-radius: 999px; border: 1px solid #2E333B; background: #111317; color: #E8EAED; text-decoration: none; font-size: 14px;">Henry Hub spot price, last two years</a>
+        <a href="#answer" style="padding: 10px 16px; border-radius: 999px; border: 1px solid #2E333B; background: #111317; color: #E8EAED; text-decoration: none; font-size: 14px;">ERCOT hourly demand last week</a>
+        <a href="#answer" style="padding: 10px 16px; border-radius: 999px; border: 1px solid #2E333B; background: #111317; color: #E8EAED; text-decoration: none; font-size: 14px;">Weekly US gasoline prices since 2020</a>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 14px; padding-top: 12px;">
+        <div style="display: flex; align-items: baseline;">
+          <h2 style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #7D8590;">Recently saved</h2>
+          <a href="#library" style="margin-left: auto; font-size: 14px;">Open library</a>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;">
+          
+            <a href="#library" style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 14px; background: #111317; border: 1px solid #23272E; text-decoration: none; color: #E8EAED;">
+              <div style="font-size: 14px; font-weight: 500; line-height: 1.35; height: 38px;">Residential electricity, California vs Texas</div>
+              <svg viewBox="0 0 248 58" preserveAspectRatio="none" style="width: 100%; height: 44px;">
+                <polyline points="0,37 9,36 18,37 28,34 37,36 46,33 55,30 64,30 73,29 83,26 92,22 101,24 110,26 119,22 129,17 138,18 147,13 156,17 165,8 175,11 184,12 193,15 202,12 211,9 220,12 230,7 239,10 248,7" fill="none" stroke="#3DDC97" stroke-width="2" stroke-linejoin="round"></polyline>
+                <polyline points="0,54 9,53 18,53 28,53 37,54 46,53 55,53 64,53 73,51 83,52 92,50 101,48 110,47 119,47 129,48 138,49 147,47 156,48 165,46 175,47 184,45 193,46 202,46 211,46 220,45 230,45 239,44 248,45" fill="none" stroke="#58A6FF" stroke-width="2" stroke-linejoin="round"></polyline>
+              </svg>
+              <div style="display: flex; align-items: baseline; gap: 6px;">
+                <span style="font-family: 'Geist Mono', monospace; font-size: 18px; font-weight: 500;">34.74</span>
+                <span style="font-size: 12px; color: #7D8590;">¢/kWh, CA · Jun 2026</span>
+              </div>
+            </a>
+          
+            <a href="#library" style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 14px; background: #111317; border: 1px solid #23272E; text-decoration: none; color: #E8EAED;">
+              <div style="font-size: 14px; font-weight: 500; line-height: 1.35; height: 38px;">US regular gasoline retail price</div>
+              <svg viewBox="0 0 248 58" preserveAspectRatio="none" style="width: 100%; height: 44px;">
+                <polyline points="0,45 9,44 18,37 28,30 37,32 46,34 55,35 64,41 73,43 83,47 92,48 101,46 110,46 119,43 129,43 138,43 147,44 156,42 165,47 175,46 184,53 193,52 202,34 211,19 220,7 230,25 239,18 248,11" fill="none" stroke="#3DDC97" stroke-width="2" stroke-linejoin="round"></polyline>
+              </svg>
+              <div style="display: flex; align-items: baseline; gap: 6px;">
+                <span style="font-family: 'Geist Mono', monospace; font-size: 18px; font-weight: 500;">4.32</span>
+                <span style="font-size: 12px; color: #7D8590;">$/gal · Sep 2026</span>
+              </div>
+            </a>
+          
+            <a href="#library" style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 14px; background: #111317; border: 1px solid #23272E; text-decoration: none; color: #E8EAED;">
+              <div style="font-size: 14px; font-weight: 500; line-height: 1.35; height: 38px;">Henry Hub natural gas spot price</div>
+              <svg viewBox="0 0 248 58" preserveAspectRatio="none" style="width: 100%; height: 44px;">
+                <polyline points="0,51 9,52 18,53 28,51 37,47 46,47 55,42 64,30 73,39 83,32 92,13 101,12 110,28 119,49 129,50 138,47 147,46 156,52 165,50 175,51 184,50 193,36 202,43 211,45 220,39 230,40 239,44 248,46" fill="none" stroke="#3DDC97" stroke-width="2" stroke-linejoin="round"></polyline>
+              </svg>
+              <div style="display: flex; align-items: baseline; gap: 6px;">
+                <span style="font-family: 'Geist Mono', monospace; font-size: 18px; font-weight: 500;">2.78</span>
+                <span style="font-size: 12px; color: #7D8590;">$/MMBtu · Aug 2026</span>
+              </div>
+            </a>
+          
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</section>
+<section id="answer" aria-label="answer screen">
+<div class="screen">
+<nav aria-label="Primary" class="rail">
+  <a href="#home" class="wordmark"><span>eia</span><em>explorer</em></a>
+  <a href="#home" class="new-q"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New question</a>
+  <div class="nav-list"><a class="nav-item active" href="#home"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Ask</a><a class="nav-item" href="#library"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 17l8 4 8-4"/></svg>Library<span class="count">6</span></a><a class="nav-item" href="#catalogue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Catalogue<span class="count">232</span></a></div>
+  <div class="recent"><div class="label">Recent</div>
+    <a href="#answer" class="current">Residential prices, New York vs Florida</a>
+    <a href="#answer">Henry Hub spot prices</a>
+    <a href="#answer">CAISO hourly demand this summer</a></div>
+  <div class="status"><div><span class="dot"></span>Turso · synced</div><div>Data: U.S. Energy Information Administration</div></div>
+</nav>
+  <main style="flex-grow: 1; display: flex; flex-direction: column; min-width: 0; box-sizing: border-box;">
+    <header style="height: 64px; flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 0 40px; border-bottom: 1px solid #23272E;">
+      <h1 style="margin: 0; font-size: 15px; font-weight: 500;">Residential prices, New York vs Florida</h1>
+      <span style="font-size: 13px; color: #7D8590;">· 1 dataset</span>
+      <button type="button" style="margin-left: auto; height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #2E333B; background: #111317; font-family: inherit; font-size: 13px; color: #E8EAED;">Share</button>
+    </header>
+
+    <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 28px; padding: 36px 40px 0; overflow: hidden;">
+      <div style="width: 720px; display: flex; justify-content: flex-end;">
+        <div style="max-width: 520px; padding: 12px 18px; border-radius: 18px 18px 4px 18px; background: #E8EAED; color: #0A0B0D; font-size: 15px; line-height: 1.5;">How have residential electricity prices changed in New York vs Florida since 2015?</div>
+      </div>
+
+      <article style="width: 720px; display: flex; flex-direction: column; gap: 18px;">
+        <details open style="border: 1px solid #23272E; border-radius: 12px; background: #0F1114; padding: 12px 16px;">
+          <summary style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #A9AFB8; cursor: pointer;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3DDC97" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>
+            <span style="font-weight: 500; font-family: 'Geist Mono', monospace;">agent · 4 tool calls</span>
+            <span style="color: #7D8590;">· 24 s · 1 download from EIA</span>
+          </summary>
+          <div style="margin: 12px 0 2px; padding: 12px 14px; border-radius: 8px; background: #07080A; border: 1px solid #23272E; font-family: 'Geist Mono', monospace; font-size: 12px; line-height: 1.9; color: #A9AFB8;">
+  <div><span style="color: #3DDC97;">✓</span> list_saved_datasets <span style="color: #7D8590;">contains="retail" → 0 matches</span></div>
+  <div><span style="color: #3DDC97;">✓</span> describe_dataset <span style="color: #7D8590;">route="electricity/retail-sales"</span></div>
+  <div><span style="color: #3DDC97;">✓</span> fetch_data <span style="color: #7D8590;">stateid=[NY,FL] sectorid=[RES] start=2015-01</span> <span style="color: #58A6FF;">→ 276 rows · saved</span></div>
+  <div><span style="color: #3DDC97;">✓</span> make_chart <span style="color: #7D8590;">kind=line metric=price</span></div>
+</div>
+        </details>
+
+        <figure style="margin: 0; display: flex; flex-direction: column; gap: 10px; padding: 20px 20px 14px; border-radius: 16px; background: #15181D; border: 1px solid #23272E;">
+          <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <figcaption style="font-size: 16px; font-weight: 600;">Average residential electricity price</figcaption>
+              <div style="font-size: 13px; color: #7D8590;">Cents per kWh · monthly, Jan 2015 – Jun 2026 · EIA</div>
+            </div>
+            <div style="margin-left: auto; display: flex; gap: 4px; padding: 3px; border-radius: 9px; background: #0F1114;">
+              <button type="button" style="height: 30px; padding: 0 10px; border: 0; border-radius: 7px; background: #15181D; font-family: inherit; font-size: 12px; color: #E8EAED;">Line</button>
+              <button type="button" style="height: 30px; padding: 0 10px; border: 0; border-radius: 7px; background: transparent; font-family: inherit; font-size: 12px; color: #A9AFB8;">Seasonal</button>
+              <button type="button" style="height: 30px; padding: 0 10px; border: 0; border-radius: 7px; background: transparent; font-family: inherit; font-size: 12px; color: #A9AFB8;">Latest</button>
+            </div>
+          </div>
+          <svg viewBox="0 0 860 280" style="width: 100%; height: auto;" role="img" aria-label="Line chart: New York residential price rises from about 19 to 28 cents per kWh between 2015 and 2026; Florida rises from about 12 to 16 cents.">
+            <g stroke="#1E2228" stroke-width="1">
+              <line x1="56" y1="32" x2="760" y2="32"></line>
+              <line x1="56" y1="82" x2="760" y2="82"></line>
+              <line x1="56" y1="132" x2="760" y2="132"></line>
+              <line x1="56" y1="182" x2="760" y2="182"></line>
+              <line x1="56" y1="232" x2="760" y2="232"></line>
+            </g>
+            <g font-family="Geist Mono, monospace" font-size="11" fill="#7D8590" text-anchor="end">
+              <text x="46" y="36">30¢</text>
+              <text x="46" y="86">25¢</text>
+              <text x="46" y="136">20¢</text>
+              <text x="46" y="186">15¢</text>
+              <text x="46" y="236">10¢</text>
+            </g>
+            <g font-family="Geist Mono, monospace" font-size="11" fill="#7D8590" text-anchor="middle">
+              <text x="56" y="268">2015</text>
+              <text x="248" y="268">2018</text>
+              <text x="440" y="268">2021</text>
+              <text x="632" y="268">2024</text>
+              <text x="760" y="268">2026</text>
+            </g>
+            <polyline points="56,139 88,145 120,166 152,153 184,159 216,144 248,154 280,138 312,159 344,146 376,156 408,144 440,149 472,136 504,122 536,113 568,96 600,109 632,97 664,81 696,79 728,70 760,48" fill="none" stroke="#3DDC97" stroke-width="2.5" stroke-linejoin="round"></polyline>
+            <polyline points="56,215 88,216 120,220 152,223 184,218 216,216 248,216 280,218 312,216 344,215 376,219 408,218 440,217 472,214 504,198 536,193 568,183 600,183 632,185 664,195 696,188 728,181 760,173" fill="none" stroke="#58A6FF" stroke-width="2.5" stroke-linejoin="round"></polyline>
+            <circle cx="760" cy="48" r="4" fill="#3DDC97"></circle>
+            <circle cx="760" cy="173" r="4" fill="#58A6FF"></circle>
+            <text x="772" y="46" font-family="Geist, sans-serif" font-size="13" font-weight="600" fill="#3DDC97">New York</text>
+            <text x="772" y="62" font-family="Geist Mono, monospace" font-size="11" fill="#A9AFB8">29.49¢</text>
+            <text x="772" y="171" font-family="Geist, sans-serif" font-size="13" font-weight="600" fill="#58A6FF">Florida</text>
+            <text x="772" y="187" font-family="Geist Mono, monospace" font-size="11" fill="#A9AFB8">15.10¢</text>
+          </svg>
+          <div style="display: flex; align-items: center; gap: 16px; padding-top: 10px; border-top: 1px solid #0F1114; font-size: 13px;">
+            <a href="#library">Open in library</a>
+            <a href="#answer">Download CSV</a>
+            <span style="margin-left: auto; color: #7D8590;">Every other month shown · latest months preliminary</span>
+          </div>
+        </figure>
+
+        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 16px; line-height: 1.65; color: #E8EAED;">
+          <p style="margin: 0;">From January 2015 to June 2026, New York's average residential price rose from <b>19.3¢ to 29.5¢</b> per kWh, about 53%. Florida's rose from <b>11.7¢ to 15.1¢</b>, about 29%.</p>
+          <p style="margin: 0;">New York has been more expensive throughout, and the gap has widened from roughly 7.6¢ to 14.4¢ per kWh. Both series are seasonal; New York's winter peaks are the sharpest.</p>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <a href="#answer" style="padding: 8px 14px; border-radius: 999px; border: 1px solid #2E333B; background: #111317; color: #E8EAED; text-decoration: none; font-size: 13px;">Add California and Texas</a>
+          <a href="#answer" style="padding: 8px 14px; border-radius: 999px; border: 1px solid #2E333B; background: #111317; color: #E8EAED; text-decoration: none; font-size: 13px;">Compare with commercial prices</a>
+          <a href="#answer" style="padding: 8px 14px; border-radius: 999px; border: 1px solid #2E333B; background: #111317; color: #E8EAED; text-decoration: none; font-size: 13px;">Show the seasonal pattern</a>
+        </div>
+      </article>
+    </div>
+
+    <div style="flex-shrink: 0; display: flex; justify-content: center; padding: 16px 40px 28px; background: #0A0B0D; border-top: 1px solid #23272E;">
+      <form style="width: 720px; display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 20px; border-radius: 16px; background: #15181D; border: 1px solid #2E333B; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);">
+        <label for="follow" style="position: absolute; width: 1px; height: 1px; overflow: hidden;">Follow-up question</label>
+        <input id="follow" type="text" placeholder="Ask a follow-up…" style="flex-grow: 1; height: 40px; border: 0; outline: none; font-family: inherit; font-size: 15px; background: transparent; color: #E8EAED;">
+        <button type="submit" aria-label="Send" style="width: 44px; height: 44px; border: 0; border-radius: 22px; background: #3DDC97; color: #04110B; display: flex; align-items: center; justify-content: center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <aside aria-label="Dataset details" style="width: 360px; flex-shrink: 0; box-sizing: border-box; padding: 24px 24px; display: flex; flex-direction: column; gap: 20px; background: #111317; border-left: 1px solid #23272E;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #7D8590;">Dataset</span>
+      <span style="margin-left: auto; padding: 3px 8px; border-radius: 6px; background: #0F2A1E; color: #3DDC97; font-size: 12px; font-weight: 500;">Saved to library</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <h2 style="margin: 0; font-family: 'Geist', sans-serif; font-weight: 600; letter-spacing: -0.035em; font-size: 28px; line-height: 1.1;">Residential electricity price, NY vs FL</h2>
+      <div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">electricity/retail-sales</div>
+    </div>
+    <dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; font-size: 13px;">
+      <div style="display: flex; flex-direction: column; gap: 3px;"><dt style="color: #7D8590;">Frequency</dt><dd style="margin: 0; font-weight: 500;">Monthly</dd></div>
+      <div style="display: flex; flex-direction: column; gap: 3px;"><dt style="color: #7D8590;">Rows</dt><dd style="margin: 0; font-weight: 500;">276</dd></div>
+      <div style="display: flex; flex-direction: column; gap: 3px;"><dt style="color: #7D8590;">Coverage</dt><dd style="margin: 0; font-weight: 500;">2015-01 → 2026-06</dd></div>
+      <div style="display: flex; flex-direction: column; gap: 3px;"><dt style="color: #7D8590;">Units</dt><dd style="margin: 0; font-weight: 500;">cents / kWh</dd></div>
+      <div style="display: flex; flex-direction: column; gap: 3px;"><dt style="color: #7D8590;">States</dt><dd style="margin: 0; font-weight: 500;">NY, FL</dd></div>
+      <div style="display: flex; flex-direction: column; gap: 3px;"><dt style="color: #7D8590;">Sector</dt><dd style="margin: 0; font-weight: 500;">Residential</dd></div>
+    </dl>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #7D8590;">EIA API request</div>
+      <pre style="margin: 0; padding: 12px; border-radius: 10px; background: #07080A; color: #3DDC97; border: 1px solid #23272E; font-family: 'Geist Mono', monospace; font-size: 11px; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">GET /v2/electricity/retail-sales/data/
+  ?frequency=monthly
+  &amp;data[0]=price
+  &amp;facets[stateid][]=NY
+  &amp;facets[stateid][]=FL
+  &amp;facets[sectorid][]=RES
+  &amp;start=2015-01</pre>
+      <div style="font-size: 12px; line-height: 1.5; color: #7D8590;">The exact call the agent made, so you can reuse it in your own code.</div>
+    </div>
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px;">
+      <a href="#answer" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 44px; border-radius: 10px; background: #E8EAED; color: #0A0B0D; text-decoration: none; font-size: 14px; font-weight: 500;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>
+        Download CSV
+      </a>
+      <div style="text-align: center; font-size: 12px; color: #7D8590;">Fetched from EIA today · refreshes after 7 days</div>
+    </div>
+  </aside>
+</div>
+
+</section>
+<section id="library" aria-label="library screen">
+<div class="screen">
+<nav aria-label="Primary" class="rail">
+  <a href="#home" class="wordmark"><span>eia</span><em>explorer</em></a>
+  <a href="#home" class="new-q"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New question</a>
+  <div class="nav-list"><a class="nav-item" href="#home"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Ask</a><a class="nav-item active" href="#library"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 17l8 4 8-4"/></svg>Library<span class="count">6</span></a><a class="nav-item" href="#catalogue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Catalogue<span class="count">232</span></a></div>
+  <div class="recent"><div class="label">Recent</div>
+    <a href="#answer">Residential prices, New York vs Florida</a>
+    <a href="#answer">Henry Hub spot prices</a>
+    <a href="#answer">CAISO hourly demand this summer</a></div>
+  <div class="status"><div><span class="dot"></span>Turso · synced</div><div>Data: U.S. Energy Information Administration</div></div>
+</nav>
+  <main style="flex-grow: 1; box-sizing: border-box; padding: 56px 56px 40px; display: flex; flex-direction: column; gap: 28px;">
+    <div style="display: flex; align-items: flex-end; gap: 24px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <h1 style="margin: 0; font-family: 'Geist', sans-serif; font-weight: 600; letter-spacing: -0.035em; font-size: 52px; line-height: 1;">Library</h1>
+        <p style="margin: 0; font-size: 15px; color: #A9AFB8;">Every dataset the agent has downloaded. Stored in Turso and shared by everyone using the app.</p>
+      </div>
+      <form style="margin-left: auto; display: flex; align-items: center; gap: 10px; width: 340px; height: 44px; padding: 0 14px; border-radius: 10px; background: #15181D; border: 1px solid #2E333B;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7D8590" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <label for="libsearch" style="position: absolute; width: 1px; height: 1px; overflow: hidden;">Search library</label>
+        <input id="libsearch" type="search" placeholder="Search by title or route" style="flex-grow: 1; border: 0; outline: none; font-family: inherit; font-size: 14px; background: transparent;">
+      </form>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <button type="button" style="height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid #E8EAED; background: #E8EAED; color: #0A0B0D; font-family: inherit; font-size: 13px;">All · 6</button>
+      <button type="button" style="height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid #2E333B; background: #111317; color: #E8EAED; font-family: inherit; font-size: 13px;">Electricity · 3</button>
+      <button type="button" style="height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid #2E333B; background: #111317; color: #E8EAED; font-family: inherit; font-size: 13px;">Natural gas · 2</button>
+      <button type="button" style="height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid #2E333B; background: #111317; color: #E8EAED; font-family: inherit; font-size: 13px;">Petroleum · 1</button>
+      <span style="margin-left: auto; font-size: 13px; color: #7D8590;">Sorted by most recent</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px;">
+      
+        <a href="#answer" style="display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 16px; background: #15181D; border: 1px solid #23272E; text-decoration: none; color: #E8EAED;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="padding: 3px 8px; border-radius: 6px; background: #0F1114; font-size: 12px; color: #A9AFB8;">Electricity</span>
+            <span style="font-size: 12px; color: #7D8590;">Monthly</span>
+            <span style="margin-left: auto; font-size: 12px; color: #7D8590;">Today</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="font-size: 16px; font-weight: 600; line-height: 1.3;">Residential electricity price, NY vs FL</div>
+            <div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">electricity/retail-sales</div>
+          </div>
+          <svg viewBox="0 0 248 58" preserveAspectRatio="none" style="width: 100%; height: 72px;">
+            <polyline points="0,31 9,32 18,34 28,36 37,33 46,35 55,32 64,37 73,33 83,31 92,37 101,33 110,35 119,32 129,34 138,30 147,28 156,28 165,27 175,21 184,26 193,23 202,22 211,18 220,15 230,15 239,12 248,7" fill="none" stroke="#3DDC97" stroke-width="2" stroke-linejoin="round"></polyline>
+            <polyline points="0,49 9,49 18,49 28,51 37,50 46,49 55,49 64,49 73,50 83,49 92,49 101,49 110,50 119,50 129,50 138,49 147,48 156,45 165,44 175,42 184,41 193,40 202,42 211,44 220,41 230,41 239,41 248,41" fill="none" stroke="#58A6FF" stroke-width="2" stroke-linejoin="round"></polyline>
+          </svg>
+          <div style="display: flex; align-items: baseline; gap: 8px; padding-top: 12px; border-top: 1px solid #0F1114;">
+            <span style="font-family: 'Geist Mono', monospace; font-size: 20px; font-weight: 500;">29.49</span>
+            <span style="font-size: 12px; color: #7D8590;">¢/kWh</span>
+            <span style="margin-left: auto; font-size: 12px; color: #7D8590;">276 rows · 2015–2026</span>
+          </div>
+        </a>
+      
+        <a href="#answer" style="display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 16px; background: #15181D; border: 1px solid #23272E; text-decoration: none; color: #E8EAED;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="padding: 3px 8px; border-radius: 6px; background: #0F1114; font-size: 12px; color: #A9AFB8;">Natural gas</span>
+            <span style="font-size: 12px; color: #7D8590;">Daily</span>
+            <span style="margin-left: auto; font-size: 12px; color: #7D8590;">Today</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="font-size: 16px; font-weight: 600; line-height: 1.3;">Henry Hub natural gas spot price</div>
+            <div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">natural-gas/pri/fut</div>
+          </div>
+          <svg viewBox="0 0 248 58" preserveAspectRatio="none" style="width: 100%; height: 72px;">
+            <polyline points="0,49 9,46 18,50 28,48 37,49 46,50 55,53 64,53 73,53 83,50 92,48 101,50 110,52 119,51 129,49 138,51 147,50 156,47 165,41 175,43 184,41 193,43 202,46 211,47 220,46 230,46 239,47 248,47" fill="none" stroke="#3DDC97" stroke-width="2" stroke-linejoin="round"></polyline>
+          </svg>
+          <div style="display: flex; align-items: baseline; gap: 8px; padding-top: 12px; border-top: 1px solid #0F1114;">
+            <span style="font-family: 'Geist Mono', monospace; font-size: 20px; font-weight: 500;">3.07</span>
+            <span style="font-size: 12px; color: #7D8590;">$/MMBtu</span>
+            <span style="margin-left: auto; font-size: 12px; color: #7D8590;">500 rows · 2023–2025</span>
+          </div>
+        </a>
+      
+        <a href="#answer" style="display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 16px; background: #15181D; border: 1px solid #23272E; text-decoration: none; color: #E8EAED;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="padding: 3px 8px; border-radius: 6px; background: #0F1114; font-size: 12px; color: #A9AFB8;">Petroleum</span>
+            <span style="font-size: 12px; color: #7D8590;">Weekly</span>
+            <span style="margin-left: auto; font-size: 12px; color: #7D8590;">Today</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="font-size: 16px; font-weight: 600; line-height: 1.3;">US regular gasoline retail price</div>
+            <div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">petroleum/pri/gnd</div>
+          </div>
+          <svg viewBox="0 0 248 58" preserveAspectRatio="none" style="width: 100%; height: 72px;">
+            <polyline points="0,45 9,44 18,37 28,30 37,32 46,34 55,35 64,41 73,43 83,47 92,48 101,46 110,46 119,43 129,43 138,43 147,44 156,42 165,47 175,46 184,53 193,52 202,34 211,19 220,7 230,25 239,18 248,11" fill="none" stroke="#3DDC97" stroke-width="2" stroke-linejoin="round"></polyline>
+          </svg>
+          <div style="display: flex; align-items: baseline; gap: 8px; padding-top: 12px; border-top: 1px solid #0F1114;">
+            <span style="font-family: 'Geist Mono', monospace; font-size: 20px; font-weight: 500;">4.32</span>
+            <span style="font-size: 12px; color: #7D8590;">$/gal</span>
+            <span style="margin-left: auto; font-size: 12px; color: #7D8590;">142 rows · 2024–2026</span>
+          </div>
+        </a>
+      
+        <a href="#answer" style="display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 16px; background: #15181D; border: 1px solid #23272E; text-decoration: none; color: #E8EAED;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="padding: 3px 8px; border-radius: 6px; background: #0F1114; font-size: 12px; color: #A9AFB8;">Natural gas</span>
+            <span style="font-size: 12px; color: #7D8590;">Monthly</span>
+            <span style="margin-left: auto; font-size: 12px; color: #7D8590;">Today</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="font-size: 16px; font-weight: 600; line-height: 1.3;">Henry Hub natural gas spot price</div>
+            <div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">natural-gas/pri/fut</div>
+          </div>
+          <svg viewBox="0 0 248 58" preserveAspectRatio="none" style="width: 100%; height: 72px;">
+            <polyline points="0,51 9,52 18,53 28,51 37,47 46,47 55,42 64,30 73,39 83,32 92,13 101,12 110,28 119,49 129,50 138,47 147,46 156,52 165,50 175,51 184,50 193,36 202,43 211,45 220,39 230,40 239,44 248,46" fill="none" stroke="#3DDC97" stroke-width="2" stroke-linejoin="round"></polyline>
+          </svg>
+          <div style="display: flex; align-items: baseline; gap: 8px; padding-top: 12px; border-top: 1px solid #0F1114;">
+            <span style="font-family: 'Geist Mono', monospace; font-size: 20px; font-weight: 500;">2.78</span>
+            <span style="font-size: 12px; color: #7D8590;">$/MMBtu</span>
+            <span style="margin-left: auto; font-size: 12px; color: #7D8590;">80 rows · 2020–2026</span>
+          </div>
+        </a>
+      
+        <a href="#answer" style="display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 16px; background: #15181D; border: 1px solid #23272E; text-decoration: none; color: #E8EAED;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="padding: 3px 8px; border-radius: 6px; background: #0F1114; font-size: 12px; color: #A9AFB8;">Electricity</span>
+            <span style="font-size: 12px; color: #7D8590;">Hourly</span>
+            <span style="margin-left: auto; font-size: 12px; color: #7D8590;">Today</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="font-size: 16px; font-weight: 600; line-height: 1.3;">CAISO hourly demand</div>
+            <div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">electricity/rto/region-data</div>
+          </div>
+          <svg viewBox="0 0 248 58" preserveAspectRatio="none" style="width: 100%; height: 72px;">
+            <polyline points="0,52 9,40 18,43 28,29 37,37 46,48 55,36 64,51 73,42 83,37 92,34 101,24 110,35 119,28 129,38 138,31 147,25 156,27 165,28 175,39 184,27 193,30 202,20 211,27 220,36 230,25 239,32 248,36" fill="none" stroke="#3DDC97" stroke-width="2" stroke-linejoin="round"></polyline>
+          </svg>
+          <div style="display: flex; align-items: baseline; gap: 8px; padding-top: 12px; border-top: 1px solid #0F1114;">
+            <span style="font-family: 'Geist Mono', monospace; font-size: 20px; font-weight: 500;">31,347</span>
+            <span style="font-size: 12px; color: #7D8590;">MWh</span>
+            <span style="margin-left: auto; font-size: 12px; color: #7D8590;">2,589 rows · Jun–Sep 2026</span>
+          </div>
+        </a>
+      
+        <a href="#answer" style="display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 16px; background: #15181D; border: 1px solid #23272E; text-decoration: none; color: #E8EAED;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="padding: 3px 8px; border-radius: 6px; background: #0F1114; font-size: 12px; color: #A9AFB8;">Electricity</span>
+            <span style="font-size: 12px; color: #7D8590;">Monthly</span>
+            <span style="margin-left: auto; font-size: 12px; color: #7D8590;">Today</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="font-size: 16px; font-weight: 600; line-height: 1.3;">Residential electricity, California vs Texas</div>
+            <div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">electricity/retail-sales</div>
+          </div>
+          <svg viewBox="0 0 248 58" preserveAspectRatio="none" style="width: 100%; height: 72px;">
+            <polyline points="0,37 9,36 18,37 28,34 37,36 46,33 55,30 64,30 73,29 83,26 92,22 101,24 110,26 119,22 129,17 138,18 147,13 156,17 165,8 175,11 184,12 193,15 202,12 211,9 220,12 230,7 239,10 248,7" fill="none" stroke="#3DDC97" stroke-width="2" stroke-linejoin="round"></polyline>
+            <polyline points="0,54 9,53 18,53 28,53 37,54 46,53 55,53 64,53 73,51 83,52 92,50 101,48 110,47 119,47 129,48 138,49 147,47 156,48 165,46 175,47 184,45 193,46 202,46 211,46 220,45 230,45 239,44 248,45" fill="none" stroke="#58A6FF" stroke-width="2" stroke-linejoin="round"></polyline>
+          </svg>
+          <div style="display: flex; align-items: baseline; gap: 8px; padding-top: 12px; border-top: 1px solid #0F1114;">
+            <span style="font-family: 'Geist Mono', monospace; font-size: 20px; font-weight: 500;">34.74</span>
+            <span style="font-size: 12px; color: #7D8590;">¢/kWh</span>
+            <span style="margin-left: auto; font-size: 12px; color: #7D8590;">312 rows · 2020–2026</span>
+          </div>
+        </a>
+      
+    </div>
+  </main>
+</div>
+
+</section>
+<section id="catalogue" aria-label="catalogue screen">
+<div class="screen">
+<nav aria-label="Primary" class="rail">
+  <a href="#home" class="wordmark"><span>eia</span><em>explorer</em></a>
+  <a href="#home" class="new-q"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New question</a>
+  <div class="nav-list"><a class="nav-item" href="#home"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Ask</a><a class="nav-item" href="#library"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 17l8 4 8-4"/></svg>Library<span class="count">6</span></a><a class="nav-item active" href="#catalogue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Catalogue<span class="count">232</span></a></div>
+  <div class="recent"><div class="label">Recent</div>
+    <a href="#answer">Residential prices, New York vs Florida</a>
+    <a href="#answer">Henry Hub spot prices</a>
+    <a href="#answer">CAISO hourly demand this summer</a></div>
+  <div class="status"><div><span class="dot"></span>Turso · synced</div><div>Data: U.S. Energy Information Administration</div></div>
+</nav>
+  <main style="flex-grow: 1; box-sizing: border-box; padding: 56px 56px 40px; display: flex; flex-direction: column; gap: 28px; min-width: 0;">
+    <div style="display: flex; align-items: flex-end; gap: 24px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <h1 style="margin: 0; font-family: 'Geist', sans-serif; font-weight: 600; letter-spacing: -0.035em; font-size: 52px; line-height: 1;">Catalogue</h1>
+        <p style="margin: 0; font-size: 15px; color: #A9AFB8;">All 232 datasets the EIA API serves, indexed so you and the agent can find them.</p>
+      </div>
+      <form style="margin-left: auto; display: flex; align-items: center; gap: 10px; width: 380px; height: 44px; padding: 0 14px; border-radius: 10px; background: #15181D; border: 1px solid #2E333B;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7D8590" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <label for="catsearch" style="position: absolute; width: 1px; height: 1px; overflow: hidden;">Search catalogue</label>
+        <input id="catsearch" type="search" placeholder="nuclear outages, crude imports, state CO2…" style="flex-grow: 1; border: 0; outline: none; font-family: inherit; font-size: 14px; background: transparent;">
+      </form>
+    </div>
+
+    <div style="display: flex; gap: 32px; min-height: 0;">
+      <div style="width: 220px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px;">
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: transparent; border: 1px solid transparent; color: #A9AFB8;">
+            <span>Petroleum</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">112</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: transparent; border: 1px solid transparent; color: #A9AFB8;">
+            <span>Natural gas</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">53</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: #15181D; border: 1px solid #23272E; color: #E8EAED; font-weight: 500;">
+            <span>Electricity</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">19</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: transparent; border: 1px solid transparent; color: #A9AFB8;">
+            <span>Annual Energy Outlook</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">13</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: transparent; border: 1px solid transparent; color: #A9AFB8;">
+            <span>Coal</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">13</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: transparent; border: 1px solid transparent; color: #A9AFB8;">
+            <span>Densified biomass</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">8</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: transparent; border: 1px solid transparent; color: #A9AFB8;">
+            <span>International Energy Outlook</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">4</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: transparent; border: 1px solid transparent; color: #A9AFB8;">
+            <span>Nuclear outages</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">3</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: transparent; border: 1px solid transparent; color: #A9AFB8;">
+            <span>CO₂ emissions (deprecated)</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">2</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: transparent; border: 1px solid transparent; color: #A9AFB8;">
+            <span>Crude oil imports</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">1</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: transparent; border: 1px solid transparent; color: #A9AFB8;">
+            <span>International</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">1</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: transparent; border: 1px solid transparent; color: #A9AFB8;">
+            <span>State energy (SEDS)</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">1</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: transparent; border: 1px solid transparent; color: #A9AFB8;">
+            <span>Short-term outlook</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">1</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; font-family: inherit; font-size: 14px; text-align: left; background: transparent; border: 1px solid transparent; color: #A9AFB8;">
+            <span>Total energy</span>
+            <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px; color: #7D8590;">1</span>
+          </button>
+        
+      </div>
+
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0;">
+        <div style="display: flex; align-items: baseline; gap: 10px; padding-bottom: 4px;">
+          <h2 style="margin: 0; font-size: 18px; font-weight: 600;">Electricity</h2>
+          <span style="font-size: 13px; color: #7D8590;">19 datasets · showing 7</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 14px; background: #15181D; border: 1px solid #3DDC97;">
+          <div style="display: flex; align-items: flex-start; gap: 16px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="font-size: 16px; font-weight: 600;">Electricity Sales to Ultimate Customers</div>
+              <div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">electricity/retail-sales</div>
+            </div>
+            <a href="#answer" style="margin-left: auto; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 10px; background: #3DDC97; color: #04110B; text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap;">Ask about this dataset</a>
+          </div>
+          <div style="font-size: 14px; line-height: 1.5; color: #A9AFB8;">Electricity sales to ultimate customers by state and sector: number of customers, average price, revenue, and megawatt-hours sold.</div>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; font-size: 13px;">
+            <div style="display: flex; flex-direction: column; gap: 3px;"><span style="color: #7D8590;">Metrics</span><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">price · sales · revenue · customers</span></div>
+            <div style="display: flex; flex-direction: column; gap: 3px;"><span style="color: #7D8590;">Filters</span><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">stateid · sectorid</span></div>
+            <div style="display: flex; flex-direction: column; gap: 3px;"><span style="color: #7D8590;">Frequency</span><span>monthly · quarterly · annual</span></div>
+            <div style="display: flex; flex-direction: column; gap: 3px;"><span style="color: #7D8590;">Coverage</span><span>2001-01 → 2026-06</span></div>
+          </div>
+        </div>
+
+        
+          <button type="button" style="display: flex; align-items: center; gap: 20px; padding: 14px 20px; border-radius: 12px; background: #111317; border: 1px solid #23272E; text-align: left; font-family: inherit; color: #E8EAED;">
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+              <span style="font-size: 14px; font-weight: 500;">Hourly demand, forecast, generation and interchange</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">electricity/rto/region-data</span>
+            </div>
+            <span style="width: 200px; flex-shrink: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #A9AFB8;">value</span>
+            <span style="width: 120px; flex-shrink: 0; font-size: 12px; color: #A9AFB8;">hourly</span>
+            <span style="width: 170px; flex-shrink: 0; font-size: 12px; color: #7D8590; text-align: right;">2019-01-01 → today</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 20px; padding: 14px 20px; border-radius: 12px; background: #111317; border: 1px solid #23272E; text-align: left; font-family: inherit; color: #E8EAED;">
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+              <span style="font-size: 14px; font-weight: 500;">Hourly generation by energy source</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">electricity/rto/fuel-type-data</span>
+            </div>
+            <span style="width: 200px; flex-shrink: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #A9AFB8;">value</span>
+            <span style="width: 120px; flex-shrink: 0; font-size: 12px; color: #A9AFB8;">hourly</span>
+            <span style="width: 170px; flex-shrink: 0; font-size: 12px; color: #7D8590; text-align: right;">2019-01-01 → today</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 20px; padding: 14px 20px; border-radius: 12px; background: #111317; border: 1px solid #23272E; text-align: left; font-family: inherit; color: #E8EAED;">
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+              <span style="font-size: 14px; font-weight: 500;">Inventory of operable generators</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">electricity/operating-generator-capacity</span>
+            </div>
+            <span style="width: 200px; flex-shrink: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #A9AFB8;">nameplate · summer · winter MW</span>
+            <span style="width: 120px; flex-shrink: 0; font-size: 12px; color: #A9AFB8;">monthly</span>
+            <span style="width: 170px; flex-shrink: 0; font-size: 12px; color: #7D8590; text-align: right;">2008-01 → 2026-06</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 20px; padding: 14px 20px; border-radius: 12px; background: #111317; border: 1px solid #23272E; text-align: left; font-family: inherit; color: #E8EAED;">
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+              <span style="font-size: 14px; font-weight: 500;">Electric power operations (annual and monthly)</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">electricity/electric-power-operational-data</span>
+            </div>
+            <span style="width: 200px; flex-shrink: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #A9AFB8;">generation · consumption</span>
+            <span style="width: 120px; flex-shrink: 0; font-size: 12px; color: #A9AFB8;">monthly · annual</span>
+            <span style="width: 170px; flex-shrink: 0; font-size: 12px; color: #7D8590; text-align: right;">2001-01 → 2026-06</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 20px; padding: 14px 20px; border-radius: 12px; background: #111317; border: 1px solid #23272E; text-align: left; font-family: inherit; color: #E8EAED;">
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+              <span style="font-size: 14px; font-weight: 500;">Operations for individual power plants</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">electricity/facility-fuel</span>
+            </div>
+            <span style="width: 200px; flex-shrink: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #A9AFB8;">generation · consumption</span>
+            <span style="width: 120px; flex-shrink: 0; font-size: 12px; color: #A9AFB8;">monthly · annual</span>
+            <span style="width: 170px; flex-shrink: 0; font-size: 12px; color: #7D8590; text-align: right;">2001-01 → 2026-06</span>
+          </button>
+        
+          <button type="button" style="display: flex; align-items: center; gap: 20px; padding: 14px 20px; border-radius: 12px; background: #111317; border: 1px solid #23272E; text-align: left; font-family: inherit; color: #E8EAED;">
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+              <span style="font-size: 14px; font-weight: 500;">State rankings for key statistics</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3DDC97;">electricity/state-electricity-profiles/summary</span>
+            </div>
+            <span style="width: 200px; flex-shrink: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #A9AFB8;">capacity · rank</span>
+            <span style="width: 120px; flex-shrink: 0; font-size: 12px; color: #A9AFB8;">annual</span>
+            <span style="width: 170px; flex-shrink: 0; font-size: 12px; color: #7D8590; text-align: right;">2008 → 2024</span>
+          </button>
+        
+      </div>
+    </div>
+  </main>
+</div>
+
+</section>
+</body>
+</html>
