@@ -52,3 +52,16 @@ export const ArrowUpIcon = (props) => (
     <path d="M12 19V5M5 12l7-7 7 7" />
   </Icon>
 )
+
+export const SearchIcon = (props) => (
+  <Icon {...props}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="M20 20l-3.5-3.5" />
+  </Icon>
+)
+
+export const StopIcon = (props) => (
+  <Icon {...props}>
+    <rect x="7" y="7" width="10" height="10" rx="1.5" fill="currentColor" />
+  </Icon>
+)

@@ -66,7 +66,7 @@ Without Turso credentials, everything runs on `data/eia.db`.
 
 ## API (FastAPI)
 
-The backend for the React frontend (in progress). It wraps `src/` and adds no
+The backend for the React frontend. It wraps `src/` and adds no
 logic of its own.
 
 ```bash
@@ -94,6 +94,28 @@ pip install -r requirements-dev.txt && pytest   # tests: temp SQLite, no network
 | `api/schemas.py` | Response models (the API contract) |
 | `api/settings.py` | Settings from environment variables |
 | `tests/` | Endpoint tests with a temporary database and a fake agent |
+
+## Web app (React)
+
+The frontend in `web/`, built with Vite and React. It talks only to the API.
+
+```bash
+cd web
+npm install
+npm run dev            # http://localhost:5173 (the API must be running on :8000)
+npm run build          # production files in web/dist/
+```
+
+| Path | Role |
+|---|---|
+| `src/App.jsx` | Screen switching and shared state |
+| `src/api.js` | Backend address, JSON requests, the `/ask` stream reader |
+| `src/hooks/` | `useApi` (fetch + state), `useDebounced`, `useConversation` |
+| `src/screens/` | Home, Answer, Library (+ dataset view), Catalogue |
+| `src/components/` | Sidebar, Chart (Plotly, lazy-loaded), dataset details, icons |
+| `src/index.css` | Theme tokens and all styles |
+
+Set `VITE_API_URL` in `web/.env` when the API runs elsewhere.
 
 ## Caching
 

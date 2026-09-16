@@ -20,9 +20,18 @@ Found while building and smoke-testing the first version (2026-09-16).
 - [ ] **Conversations live in the API server's memory** (`CONVERSATIONS` in
   `api/ask.py`): lost on restart, not shared between server processes.
   Store them in Turso.
-- [ ] **The agent can download a dataset it already has.** In one test it
-  charted the saved NY vs FL dataset, then fetched a near-identical one from
-  EIA anyway. Tighten the prompt or reuse cached data automatically.
+- [ ] **The agent can download a dataset it already has.** Seen twice: it
+  charts a saved dataset, then calls `fetch_data` again "to get the numbers",
+  with slightly different parameters (an explicit `end`, an extra `series`
+  facet), so the cache id differs and a duplicate is saved. Cause:
+  `make_chart` returns only "Chart shown", and `list_saved_datasets` returns
+  no statistics. Fix: return `datasets.summarize()` from `make_chart` (or add
+  a `summarize_dataset` tool), and normalise queries before hashing.
+
+- [ ] **Frontend: conversations are not listed or restorable.** The sidebar has
+  no "Recent" list yet; needs conversations stored in Turso first.
+- [ ] **Frontend: no URLs per screen.** Reloading always returns to the home
+  screen. Add a router (e.g. React Router) so /library/{id} can be shared.
 
 ## Not verified yet
 

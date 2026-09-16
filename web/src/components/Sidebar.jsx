@@ -2,25 +2,25 @@ import { useApi } from '../hooks/useApi'
 import { AskIcon, CatalogueIcon, LibraryIcon, PlusIcon } from './Icons'
 
 const NAV_ITEMS = [
-  { id: 'ask', label: 'Ask', Icon: AskIcon, countKey: null },
+  { id: 'ask', label: 'Ask', Icon: AskIcon, countKey: null },  // shows the current conversation, if any
   { id: 'library', label: 'Library', Icon: LibraryIcon, countKey: 'library_datasets' },
   { id: 'catalogue', label: 'Catalogue', Icon: CatalogueIcon, countKey: 'catalogue_datasets' },
 ]
 
 // The left rail. `screen` is the screen being shown; `onNavigate(id)` asks
 // App to show another one. Both come from App (they are "props").
-export default function Sidebar({ screen, onNavigate }) {
-  const stats = useApi('/stats') // → { catalogue_datasets, library_datasets }
+export default function Sidebar({ screen, onNavigate, refreshKey, hasConversation, streaming }) {
+  const stats = useApi('/stats', refreshKey) // → { catalogue_datasets, library_datasets }
   const health = useApi('/health') // → { status, storage }
 
   return (
     <nav className="rail" aria-label="Primary">
-      <button type="button" className="wordmark" onClick={() => onNavigate('ask')}>
+      <button type="button" className="wordmark" onClick={() => onNavigate('new')}>
         <span>eia</span>
         <em>explorer</em>
       </button>
 
-      <button type="button" className="new-question" onClick={() => onNavigate('ask')}>
+      <button type="button" className="new-question" onClick={() => onNavigate('new')}>
         <PlusIcon size={16} />
         New question
       </button>
@@ -37,6 +37,9 @@ export default function Sidebar({ screen, onNavigate }) {
             <Icon />
             {label}
             {countKey && <span className="count">{stats.data ? stats.data[countKey] : '…'}</span>}
+            {id === 'ask' && hasConversation && (
+              <span className={streaming ? 'dot dot-wait pulse count-dot' : 'dot count-dot'} title={streaming ? 'Answering…' : 'Conversation open'} />
+            )}
           </button>
         ))}
       </div>

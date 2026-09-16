@@ -10,9 +10,9 @@ const EXAMPLES = [
 ]
 
 // The landing screen: a big ask box, example questions, recent datasets.
-export default function HomeScreen({ onAsk, onNavigate }) {
+export default function HomeScreen({ onAsk, onNavigate, onOpenDataset, refreshKey }) {
   const [question, setQuestion] = useState('')
-  const library = useApi('/library')
+  const library = useApi('/library', refreshKey)
   const stats = useApi('/stats')
 
   function handleSubmit(event) {
@@ -85,7 +85,7 @@ export default function HomeScreen({ onAsk, onNavigate }) {
           {library.data && library.data.length > 0 && (
             <div className="card-grid">
               {library.data.slice(0, 3).map((item) => (
-                <button key={item.id} type="button" className="card" onClick={() => onNavigate('library')}>
+                <button key={item.id} type="button" className="card" onClick={() => onOpenDataset(item.id)}>
                   <span className="card-title">{item.title}</span>
                   <span className="mono accent">{item.route}</span>
                   <span className="muted small">
