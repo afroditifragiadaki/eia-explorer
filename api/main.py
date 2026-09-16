@@ -26,6 +26,7 @@ from fastapi import FastAPI, HTTPException, Query  # noqa: E402
 from src import store  # noqa: E402
 
 from .ask import router as ask_router  # noqa: E402
+from .datasets import router as datasets_router  # noqa: E402
 from .schemas import CatalogueDetail, CatalogueItem, LibraryItem  # noqa: E402
 
 
@@ -49,6 +50,7 @@ app = FastAPI(
 
 # Endpoints defined in other files are attached here.
 app.include_router(ask_router)
+app.include_router(datasets_router)
 
 
 @app.get("/health")

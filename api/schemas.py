@@ -58,3 +58,27 @@ class LibraryItem(BaseModel):
     route: str
     rows: int
     fetched_at: str
+
+
+class Observation(BaseModel):
+    """One data point: a value for one series and metric at one period."""
+
+    period: str              # "2026-06", "2026", "2026-Q2", "2026-06-01T00"...
+    series: str              # e.g. "New York"
+    metric: str              # e.g. "price"
+    value: float | None      # None where EIA has no value
+    units: str               # e.g. "cents per kilowatt-hour"
+
+
+class DatasetDetail(BaseModel):
+    """A saved dataset with all its data points."""
+
+    id: str
+    title: str
+    route: str
+    fetched_at: str
+    query: dict              # the EIA request that produced it (filters, dates...)
+    metrics: list[str]
+    series: list[str]
+    rows: int
+    observations: list[Observation]

@@ -219,6 +219,18 @@ def save_dataset(ds_id: str, canonical: dict[str, Any], title: str, long: pd.Dat
             )
 
 
+def get_dataset_meta(ds_id: str) -> dict[str, Any] | None:
+    """One saved dataset's row from `datasets` (no freshness check), or None."""
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT id, route, query_json, title, row_count, fetched_at FROM datasets WHERE id = ?",
+            (ds_id,),
+        ).fetchone()
+    if not row:
+        return None
+    return dict(zip(["id", "route", "query_json", "title", "row_count", "fetched_at"], row))
+
+
 def load_dataset(ds_id: str) -> pd.DataFrame:
     with connect() as conn:
         rows = conn.execute(
