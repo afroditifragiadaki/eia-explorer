@@ -4,10 +4,6 @@ Found while building and smoke-testing the first version (2026-09-16).
 
 ## Bugs
 
-- [ ] **The agent doesn't know today's date.** "Henry Hub over the last two
-  years" returned Sep 2023 – Sep 2025 instead of data up to now. Fix: send the
-  current date with each user message, not in the system prompt, so prompt
-  caching still works.
 - [ ] **Closing the browser tab cancels a running question.** Streamlit stops
   the script, so the answer is lost. A dataset only reaches the library if the
   download step had already finished. Consider running the agent in a

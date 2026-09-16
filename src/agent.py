@@ -12,6 +12,7 @@ Hand-written loop so every step streams to the UI.
 from __future__ import annotations
 
 import json
+from datetime import date, datetime, timezone
 from typing import Any, Iterator
 
 import anthropic
@@ -37,6 +38,15 @@ HOW EIA DATA IS ORGANISED
 - Periods are formatted by frequency: annual `2024`, monthly `2024-06`,
   quarterly `2024-Q2`, daily `2024-06-01`, hourly `2024-06-01T00`. Pass `start`
   and `end` in the same format as the frequency.
+
+DATES
+- You do not know today's date from memory. The app adds it to the
+  conversation as a system note after each question: use that date.
+- Relative periods ("last two years", "last week", "since last summer") count
+  back from that date. Choose `start` in the frequency's format, e.g. `2024-09`
+  for monthly data when today is in September 2026.
+- EIA data lags: check the dataset's coverage end. If the latest data is older
+  than the person likely expects, say so.
 
 WORKFLOW
 1. If the question might already be answered, call list_saved_datasets first;
@@ -221,6 +231,21 @@ def _dispatch(name: str, args: dict, state: dict) -> tuple[str, dict | None]:
     return f"Unknown tool {name}.", None
 
 
+def today() -> date:
+    """Today's date in UTC. A separate function so tests can replace it."""
+    return datetime.now(timezone.utc).date()
+
+
+def date_note() -> dict[str, str]:
+    """A system note with today's date, added after each question.
+
+    Not part of SYSTEM_PROMPT: that text is cached and must stay identical
+    between requests, and a server can run for weeks. Read from the clock
+    every time instead.
+    """
+    return {"role": "system", "content": f"Today's date is {today().isoformat()} (UTC)."}
+
+
 def run_session(messages: list[dict[str, Any]], client: anthropic.Anthropic) -> Iterator[dict[str, Any]]:
     """Drive one user turn, yielding events for the UI.
 
@@ -229,6 +254,11 @@ def run_session(messages: list[dict[str, Any]], client: anthropic.Anthropic) -> 
     """
     system = [{"type": "text", "text": SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}]
     state: dict[str, datasets.Result] = {}
+
+    # The newest message is the user's question: tell Claude the date right
+    # after it. It stays in the history, so each question keeps the date it
+    # was asked on.
+    messages.append(date_note())
 
     for _ in range(MAX_TURNS):
         try:
