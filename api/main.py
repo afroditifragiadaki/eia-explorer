@@ -17,11 +17,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import json  # noqa: E402
+import logging  # noqa: E402
 from contextlib import asynccontextmanager  # noqa: E402
 
 import anthropic  # noqa: E402
 from fastapi import FastAPI, HTTPException, Query  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from fastapi.responses import JSONResponse  # noqa: E402
 
 from src import store  # noqa: E402
 
@@ -29,6 +31,8 @@ from .ask import router as ask_router  # noqa: E402
 from .datasets import router as datasets_router  # noqa: E402
 from .schemas import CatalogueDetail, CatalogueItem, LibraryItem  # noqa: E402
 from .settings import get_settings  # noqa: E402
+
+logger = logging.getLogger("eia-explorer")
 
 
 @asynccontextmanager
@@ -49,6 +53,19 @@ app = FastAPI(
     description="Find, cache and chart U.S. Energy Information Administration data.",
     lifespan=lifespan,
 )
+
+# Turn any unexpected crash into a normal JSON 500 reply. Without this, the
+# crash reply is produced outside the CORS middleware, has no CORS header, and
+# the browser hides it: the frontend only sees "Failed to fetch".
+# (Registered before CORS on purpose: middleware added later wraps it.)
+@app.middleware("http")
+async def unexpected_errors_as_json(request, call_next):
+    try:
+        return await call_next(request)
+    except Exception:
+        logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+        return JSONResponse(status_code=500, content={"detail": "Internal server error. Details are in the server log."})
+
 
 # CORS: browsers only let a page read replies from another address (our API
 # on :8000, called from the React app on :5173) if the API says it's allowed.
@@ -93,6 +110,17 @@ def search_catalogue(
     return store.search_routes(q, limit=limit)
 
 
+def metric_info(key: str, info) -> dict:
+    """One metric's description, whatever shape EIA sent it in.
+
+    EIA is inconsistent here. Across the 232 routes a metric's details are:
+    an empty list `[]` (191 times), or a dict with `alias` and/or `units`,
+    sometimes an extra `aggregation-method`, and once `unit` (singular).
+    """
+    info = info if isinstance(info, dict) else {}
+    return {"id": key, "alias": info.get("alias"), "units": info.get("units") or info.get("unit")}
+
+
 @app.get("/catalogue/{route:path}", response_model=CatalogueDetail)
 def get_catalogue_entry(route: str):
     """Everything about one EIA dataset, e.g. /catalogue/electricity/retail-sales."""
@@ -108,7 +136,7 @@ def get_catalogue_entry(route: str):
         "description": row["description"] or "",
         "frequencies": json.loads(row["frequencies"] or "[]"),
         "facets": json.loads(row["facets"] or "[]"),
-        "metrics": [{"id": key, **info} for key, info in metrics.items()],
+        "metrics": [metric_info(key, info) for key, info in metrics.items()],
         "start_period": row["start_period"],
         "end_period": row["end_period"],
     }

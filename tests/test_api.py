@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 
 from api import ask
+from src import store
 
 from .conftest import DATASET_ID
 
@@ -50,6 +51,26 @@ def test_catalogue_detail(client):
     body = r.json()
     assert body["facets"][0] == {"id": "stateid", "description": "State"}
     assert body["metrics"] == [{"id": "price", "alias": "Average Price", "units": "cents per kilowatt-hour"}]
+
+
+def test_catalogue_detail_handles_eia_metric_shapes(client):
+    body = client.get("/catalogue/natural-gas/pri/fut").json()
+    assert body["metrics"] == [
+        {"id": "value", "alias": None, "units": None},
+        {"id": "price", "alias": None, "units": "$/MMBtu"},
+    ]
+
+
+def test_unexpected_error_is_json_500_with_cors(client, monkeypatch):
+    def broken():
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(store, "all_routes", broken)
+    r = client.get("/catalogue/electricity/retail-sales", headers={"Origin": "http://localhost:5173"})
+    assert r.status_code == 500
+    assert r.json() == {"detail": "Internal server error. Details are in the server log."}
+    # The browser can read this reply, so the frontend shows a real message.
+    assert r.headers["access-control-allow-origin"] == "http://localhost:5173"
 
 
 def test_catalogue_detail_unknown_route_is_404(client):

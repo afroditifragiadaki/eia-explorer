@@ -41,7 +41,9 @@ ROUTES = [
         "description": "Henry Hub natural gas spot prices.",
         "frequencies": ["daily", "monthly"],
         "facets": [{"id": "series", "description": None}],
-        "data_cols": {"value": {"alias": None, "units": None}},
+        # The shapes EIA really sends: most metrics come as an empty list,
+        # and one route spells "units" as "unit".
+        "data_cols": {"value": [], "price": {"unit": "$/MMBtu"}},
         "start_period": "1997-01",
         "end_period": "2026-09",
     },

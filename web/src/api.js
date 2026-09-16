@@ -23,9 +23,22 @@ async function errorFrom(response) {
   return new Error(message)
 }
 
+// fetch() only fails outright (rather than returning an error status) when no
+// readable reply came back: the backend isn't running, or the reply was
+// blocked by CORS. The browser's own message, "Failed to fetch", explains
+// neither, so replace it.
+async function send(url, options) {
+  try {
+    return await fetch(url, options)
+  } catch (error) {
+    if (error.name === 'AbortError') throw error // the Stop button, not a failure
+    throw new Error(`Can't reach the backend at ${API_URL}. Is it running?`)
+  }
+}
+
 // GET a path from the backend and return the JSON it sends back.
 export async function getJSON(path) {
-  const response = await fetch(`${API_URL}${path}`)
+  const response = await send(`${API_URL}${path}`)
   if (!response.ok) throw await errorFrom(response)
   return response.json()
 }
@@ -42,7 +55,7 @@ export function csvUrl(datasetId, layout = 'wide') {
 // stream ourselves: the body arrives in chunks of bytes, we decode them to
 // text, and every blank line ("\n\n") marks the end of one event.
 export async function askStream({ question, conversationId, signal, onEvent }) {
-  const response = await fetch(`${API_URL}/ask`, {
+  const response = await send(`${API_URL}/ask`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ question, conversation_id: conversationId ?? null }),
