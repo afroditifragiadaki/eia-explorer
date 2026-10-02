@@ -102,11 +102,15 @@ class Query:
         """Order-independent form, used as the cache key."""
         return {
             "route": self.route.strip("/"),
-            "data": sorted(self.data),
-            "frequency": self.frequency,
-            "facets": {k: sorted(v) for k, v in sorted((self.facets or {}).items())},
-            "start": self.start,
-            "end": self.end,
+            "data": sorted(set(self.data)),
+            "frequency": self.frequency or None,
+            "facets": {
+                k: sorted(set(map(str, v)))
+                for k, v in sorted((self.facets or {}).items())
+                if v
+            },
+            "start": self.start or None,
+            "end": self.end or None,
         }
 
 

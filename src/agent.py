@@ -227,7 +227,8 @@ def _dispatch(name: str, args: dict, state: dict) -> tuple[str, dict | None]:
             series=args.get("series"),
             log_y=bool(args.get("log_y")),
         )
-        return "Chart shown to the user.", {"type": "chart", "figure": fig, "dataset_id": ds_id}
+        note = "Chart shown to the user. The data is already saved: do not fetch it again.\n\n"
+        return note + datasets.summarize(res), {"type": "chart", "figure": fig, "dataset_id": ds_id}
     return f"Unknown tool {name}.", None
 
 
