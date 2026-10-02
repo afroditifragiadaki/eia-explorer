@@ -4,8 +4,8 @@ Found while building and smoke-testing the first version (2026-09-16).
 
 ## Bugs
 
-- [ ] **Closing the browser tab cancels a running question.** Streamlit stops
-  the script, so the answer is lost. A dataset only reaches the library if the
+- [ ] **Closing the browser tab may cancel a running question.** The stream stops
+  with the connection, so the answer is lost. A dataset only reaches the library if the
   download step had already finished. Consider running the agent in a
   background thread, or saving each step as it happens.
 - [ ] **Catalogue crawl: routes that fail after all retries are only printed.**
@@ -31,9 +31,6 @@ Found while building and smoke-testing the first version (2026-09-16).
 
 ## Not verified yet
 
-- [ ] The fix that keeps the answer and chart visible below the status box
-  (`app.py`) hasn't been checked in the browser: the re-test was cut short
-  when the tab closed.
 - [ ] ERCOT hourly-demand example (the hourly-data path) through the UI.
 - [ ] Running the crawler and the app at the same time against the same Turso
   replica file (possible file locking).
