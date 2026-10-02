@@ -1,7 +1,7 @@
 """HTTP API for eia-explorer.
 
 The React frontend talks only to this. Everything it does is a thin wrapper
-around `src/` — the same code the Streamlit app uses — so the logic lives in
+around `src/` so the logic lives in
 one place and this file is just "which URL calls which function".
 
 Run it:

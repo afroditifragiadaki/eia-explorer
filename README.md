@@ -18,7 +18,7 @@ question ──► agent (Claude Opus 5)
                │ list_facet_values   ◄── EIA API (live codes: states, series, BAs…)
                │ list_saved_datasets ◄── Turso: datasets (the shared library)
                │ fetch_data          ◄── Turso cache hit? else EIA API → saved to Turso
-               └ make_chart          ──► Plotly in Streamlit
+               └ make_chart          ──► Plotly figure
 ```
 
 | File | Role |
@@ -29,7 +29,6 @@ question ──► agent (Claude Opus 5)
 | `src/agent.py` | Tool definitions and the agent loop, which emits each step as an event for the UI |
 | `src/charts.py` | Handles every EIA period format; line, area, bar, latest-value and seasonal charts |
 | `scripts/build_catalog.py` | Crawls the EIA route tree into the `routes` table |
-| `app.py` | Streamlit app with Ask, Library and Catalogue tabs |
 
 ## What the live API actually does
 
@@ -59,7 +58,7 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env              # add EIA_API_KEY, optionally Turso + Anthropic
 python -m scripts.build_catalog   # ~1–2 min, one-off
-streamlit run app.py
+fastapi dev api/main.py   # then see "Web app" below
 ```
 
 Without Turso credentials, everything runs on `data/eia.db`.
