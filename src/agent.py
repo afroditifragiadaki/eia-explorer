@@ -12,6 +12,9 @@ Hand-written loop so every step streams to the UI.
 from __future__ import annotations
 
 import json
+import logging
+import time
+import uuid
 from datetime import date, datetime, timezone
 from typing import Any, Iterator
 
@@ -23,6 +26,8 @@ MODEL = "claude-opus-5"
 MAX_TOKENS = 16000
 MAX_TURNS = 16
 FALLBACK_BETA = "server-side-fallback-2026-07-01"
+
+logger = logging.getLogger("eia-explorer.agent")
 
 
 SYSTEM_PROMPT = """You help people explore U.S. Energy Information Administration
@@ -247,12 +252,47 @@ def date_note() -> dict[str, str]:
     return {"role": "system", "content": f"Today's date is {today().isoformat()} (UTC)."}
 
 
-def run_session(messages: list[dict[str, Any]], client: anthropic.Anthropic) -> Iterator[dict[str, Any]]:
+def _log(event: str, **fields: Any) -> None:
+    """Write one trace record as a JSON line.
+
+    Every record of one question shares a `run_id`, so grepping the server
+    logs for it replays the agent's path.
+    """
+    logger.info(json.dumps({"event": event, **fields}, default=str))
+
+
+def _usage(response: Any) -> dict[str, int]:
+    """Token counts from a response, tolerating fields that are missing."""
+    usage = getattr(response, "usage", None)
+    names = ("input_tokens", "output_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")
+    return {n: v for n in names if (v := getattr(usage, n, None)) is not None}
+
+
+def run_session(
+    messages: list[dict[str, Any]],
+    client: anthropic.Anthropic,
+    conversation_id: str | None = None,
+) -> Iterator[dict[str, Any]]:
     """Drive one user turn, yielding events for the UI.
 
     Events: thinking | text | tool_call | dataset | chart | error | done.
     `messages` is mutated in place so the caller keeps the conversation.
+    Each step is also logged (see `_log`) under a fresh `run_id`, which the
+    `done` event returns so a user report can be matched to the logs.
     """
+    run_id = uuid.uuid4().hex[:12]
+    started = time.monotonic()
+    totals: dict[str, int] = {}
+    trace = {"run_id": run_id, "conversation_id": conversation_id}
+
+    def finish(outcome: str, **extra: Any) -> None:
+        seconds = round(time.monotonic() - started, 2)
+        _log("run_end", **trace, outcome=outcome, seconds=seconds, usage=totals, **extra)
+
+    question = next(
+        (m["content"] for m in reversed(messages) if m["role"] == "user" and isinstance(m["content"], str)), ""
+    )
+    _log("run_start", **trace, question=question)
     system = [{"type": "text", "text": SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}]
     state: dict[str, datasets.Result] = {}
 
@@ -261,7 +301,8 @@ def run_session(messages: list[dict[str, Any]], client: anthropic.Anthropic) -> 
     # was asked on.
     messages.append(date_note())
 
-    for _ in range(MAX_TURNS):
+    for turn in range(1, MAX_TURNS + 1):
+        step_started = time.monotonic()
         try:
             # `fallbacks="default"`: if Opus 5 declines, the API retries on a
             # fallback model inside the same call instead of returning nothing.
@@ -276,19 +317,37 @@ def run_session(messages: list[dict[str, Any]], client: anthropic.Anthropic) -> 
                 fallbacks="default",
             )
         except anthropic.AuthenticationError:
+            finish("api_error", turn=turn, error="authentication")
             yield {"type": "error", "text": "Invalid Anthropic API key."}
             return
         except anthropic.RateLimitError:
+            finish("api_error", turn=turn, error="rate_limit")
             yield {"type": "error", "text": "Rate limited by the Anthropic API — try again shortly."}
             return
         except anthropic.APIStatusError as exc:
+            finish("api_error", turn=turn, error=f"status {exc.status_code}")
             yield {"type": "error", "text": f"Anthropic API error {exc.status_code}: {exc.message}"}
             return
         except anthropic.APIConnectionError:
+            finish("api_error", turn=turn, error="connection")
             yield {"type": "error", "text": "Network error reaching the Anthropic API."}
             return
 
+        usage = _usage(response)
+        for name, count in usage.items():
+            totals[name] = totals.get(name, 0) + count
+        _log(
+            "model_turn",
+            **trace,
+            turn=turn,
+            model=getattr(response, "model", None),  # differs from MODEL if the fallback answered
+            stop_reason=response.stop_reason,
+            seconds=round(time.monotonic() - step_started, 2),
+            usage=usage,
+        )
+
         if response.stop_reason == "refusal":
+            finish("refusal", turn=turn)
             yield {"type": "error", "text": "The model declined this request."}
             return
 
@@ -300,7 +359,8 @@ def run_session(messages: list[dict[str, Any]], client: anthropic.Anthropic) -> 
                 yield {"type": "text", "text": block.text}
 
         if response.stop_reason != "tool_use":
-            yield {"type": "done", "stop_reason": response.stop_reason}
+            finish("done", turn=turn, stop_reason=response.stop_reason)
+            yield {"type": "done", "stop_reason": response.stop_reason, "run_id": run_id}
             return
 
         results = []
@@ -309,18 +369,40 @@ def run_session(messages: list[dict[str, Any]], client: anthropic.Anthropic) -> 
                 continue
             args = block.input if isinstance(block.input, dict) else json.loads(block.input)
             yield {"type": "tool_call", "name": block.name, "args": args}
+            tool_started = time.monotonic()
             try:
                 text, event = _dispatch(block.name, args, state)
+                _log(
+                    "tool_call",
+                    **trace,
+                    turn=turn,
+                    tool=block.name,
+                    args=args,
+                    seconds=round(time.monotonic() - tool_started, 2),
+                    result_chars=len(text),
+                )
                 if event:
                     yield event
                 results.append({"type": "tool_result", "tool_use_id": block.id, "content": text})
             except eia.MissingKey as exc:
+                _log("tool_call", **trace, turn=turn, tool=block.name, args=args, error=str(exc))
+                finish("missing_key", turn=turn)
                 yield {"type": "error", "text": str(exc)}
                 return
             except Exception as exc:  # noqa: BLE001 — the model can usually recover
+                _log(
+                    "tool_call",
+                    **trace,
+                    turn=turn,
+                    tool=block.name,
+                    args=args,
+                    seconds=round(time.monotonic() - tool_started, 2),
+                    error=f"{type(exc).__name__}: {exc}",
+                )
                 results.append(
                     {"type": "tool_result", "tool_use_id": block.id, "content": f"Error: {exc}", "is_error": True}
                 )
         messages.append({"role": "user", "content": results})
 
+    finish("max_turns", turn=MAX_TURNS)
     yield {"type": "error", "text": f"Stopped after {MAX_TURNS} steps."}
