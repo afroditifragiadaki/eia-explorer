@@ -75,7 +75,7 @@ def stream_answer(messages: list[dict[str, Any]], client: anthropic.Anthropic, c
     """The body of the streaming response: yields one SSE message per step."""
     yield sse("start", {"conversation_id": conversation_id})
     try:
-        for event in run_session(messages, client):
+        for event in run_session(messages, client, conversation_id):
             kind, data = to_json_event(event)
             yield sse(kind, data)
     except Exception as exc:  # never end the stream silently

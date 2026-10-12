@@ -141,7 +141,7 @@ def parse_sse(text: str) -> list[tuple[str, dict]]:
     return events
 
 
-def fake_run_session(messages, client):
+def fake_run_session(messages, client, conversation_id=None):
     """Stands in for the real agent: no Claude, no EIA, always the same steps."""
     yield {"type": "tool_call", "name": "search_catalog", "args": {"query": "prices"}}
     yield {"type": "text", "text": f"You asked: {messages[-1]['content']}"}

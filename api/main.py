@@ -34,6 +34,14 @@ from .settings import get_settings  # noqa: E402
 
 logger = logging.getLogger("eia-explorer")
 
+# Uvicorn only configures its own loggers, so without this the agent's INFO
+# trace lines (src/agent.py) would be dropped. They are already JSON: print as-is.
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    _handler = logging.StreamHandler()
+    _handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(_handler)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
